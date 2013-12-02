@@ -97,7 +97,7 @@ class Test_BinaryMismatch(TestCase):
         mismatch = _BinaryMismatch(first, "!~", second)
         self.assertEqual(
             mismatch.describe(),
-            '%s:\n  a\n- b\n+ d\n  c\n  ' % ('!~',)
+            '%s:\n  a\n- b\n+ d\n  c\n  \n' % ('!~',)
         )
 
     def test_long_multiline_strings(self):
@@ -108,8 +108,9 @@ class Test_BinaryMismatch(TestCase):
         expected_lines = ['!~:']
         expected_lines += ['  {}'.format(line)
                            for line in shared_prefix.strip().split('\n')]
-        expected_lines += ['- d', '+ e', '  ']
-        self.assertEqual('\n'.join(expected_lines), mismatch.describe())
+        expected_lines += ['- d', '+ e', '  ', '']
+        self.assertEqual('\n'.join(expected_lines),
+                         mismatch.describe())
 
     def test_multiline_formatted_objects(self):
         shared_prefix = ['a', 'b', 'c'] * 8
@@ -123,9 +124,10 @@ class Test_BinaryMismatch(TestCase):
             "+  'e']",
             "?   ^",
             "",
+            "",
         ]
         description_lines = mismatch.describe().split('\n')
-        self.assertEqual(expected_last_lines, description_lines[-6:])
+        self.assertEqual(expected_last_lines, description_lines[-7:])
 
 
 class TestEqualsInterface(TestCase, TestMatchersInterface):

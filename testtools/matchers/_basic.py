@@ -36,12 +36,14 @@ from ._impl import (
     )
 
 
-def _format(thing):
+def _format(thing, return_strings=False):
     """
     Blocks of text with newlines are formatted as triple-quote
     strings. Everything else is pretty-printed.
     """
     if istext(thing) or _isbytes(thing):
+        if return_strings:
+            return thing
         return text_repr(thing)
     return pformat(thing)
 
@@ -99,10 +101,10 @@ class _BinaryMismatch(Mismatch):
         return _test(self.expected) or _test(self.other)
 
     def _describe_string_with_diff(self):
-        left = _format(self.expected).split('\n')
-        right = _format(self.other).split('\n')
+        left = _format(self.expected, return_strings=True).split('\n')
+        right = _format(self.other, return_strings=True).split('\n')
         diff_lines = difflib.ndiff(left, right)
-        return '%s:\n%s' % (self._mismatch_string, '\n'.join(diff_lines))
+        return '%s:\n%s\n' % (self._mismatch_string, '\n'.join(diff_lines))
 
     def _describe_short_string(self):
         left, right = self._get_argument_reprs()
