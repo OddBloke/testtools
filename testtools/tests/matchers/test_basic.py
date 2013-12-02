@@ -111,6 +111,22 @@ class Test_BinaryMismatch(TestCase):
         expected_lines += ['- d', '+ e', '  ']
         self.assertEqual('\n'.join(expected_lines), mismatch.describe())
 
+    def test_multiline_formatted_objects(self):
+        shared_prefix = ['a', 'b', 'c'] * 8
+        first = shared_prefix + ['d']
+        second = shared_prefix + ['e']
+        mismatch = _BinaryMismatch(first, "!~", second)
+        expected_last_lines = [
+            "-  'd']",
+            "?   ^",
+            "",
+            "+  'e']",
+            "?   ^",
+            "",
+        ]
+        description_lines = mismatch.describe().split('\n')
+        self.assertEqual(expected_last_lines, description_lines[-6:])
+
 
 class TestEqualsInterface(TestCase, TestMatchersInterface):
 
