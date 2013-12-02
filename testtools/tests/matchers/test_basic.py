@@ -91,6 +91,15 @@ class Test_BinaryMismatch(TestCase):
                 text_repr(self._long_u, multiline=True),
                 repr(obj)))
 
+    def test_multiline_strings(self):
+        first = 'a\nb\nc\n'
+        second = 'a\nd\nc\n'
+        mismatch = _BinaryMismatch(first, "!~", second)
+        self.assertEqual(
+            mismatch.describe(),
+            '%s:\n  a\n- b\n+ d\n  c\n  ' % ('!~',)
+        )
+
 
 class TestEqualsInterface(TestCase, TestMatchersInterface):
 

@@ -14,6 +14,7 @@ __all__ = [
     'StartsWith',
     ]
 
+import difflib
 import operator
 from pprint import pformat
 import re
@@ -67,6 +68,7 @@ class _BinaryMismatch(Mismatch):
     """Two things did not match."""
 
     LONG_STRING_LENGTH = 70
+    MULTI_LINE_MINIMUM = 3
 
     def __init__(self, expected, mismatch_string, other):
         self.expected = expected
@@ -76,6 +78,8 @@ class _BinaryMismatch(Mismatch):
     def describe(self):
         if self._get_combined_string_length() > self.LONG_STRING_LENGTH:
             return self._describe_long_string()
+        if self._arguments_are_strings() and self._arguments_are_multiline():
+            return self._describe_string_with_diff()
         return self._describe_short_string()
 
     def _get_combined_string_length(self):
@@ -88,6 +92,19 @@ class _BinaryMismatch(Mismatch):
             _format(self.expected),
             _format(self.other)
         )
+
+    def _arguments_are_strings(self):
+        return isinstance(self.expected, str) and isinstance(self.other, str)
+
+    def _arguments_are_multiline(self):
+        return (self.expected.count('\n') >= self.MULTI_LINE_MINIMUM or
+                self.other.count('\n') >= self.MULTI_LINE_MINIMUM)
+
+    def _describe_string_with_diff(self):
+        left = self.expected.split('\n')
+        right = self.other.split('\n')
+        diff_lines = difflib.ndiff(left, right)
+        return '%s:\n%s' % (self._mismatch_string, '\n'.join(diff_lines))
 
     def _describe_short_string(self):
         left, right = self._get_argument_reprs()
