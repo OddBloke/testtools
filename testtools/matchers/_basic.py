@@ -66,20 +66,35 @@ class _BinaryComparison(object):
 class _BinaryMismatch(Mismatch):
     """Two things did not match."""
 
+    LONG_STRING_LENGTH = 70
+
     def __init__(self, expected, mismatch_string, other):
         self.expected = expected
         self._mismatch_string = mismatch_string
         self.other = other
 
     def describe(self):
-        left = repr(self.expected)
-        right = repr(self.other)
-        if len(left) + len(right) > 70:
-            return "%s:\nreference = %s\nactual    = %s\n" % (
-                self._mismatch_string, _format(self.expected),
-                _format(self.other))
-        else:
-            return "%s %s %s" % (left, self._mismatch_string, right)
+        if self._get_combined_string_length() > self.LONG_STRING_LENGTH:
+            return self._describe_long_string()
+        return self._describe_short_string()
+
+    def _get_combined_string_length(self):
+        left, right = self._get_argument_reprs()
+        return len(left) + len(right)
+
+    def _describe_long_string(self):
+        return "%s:\nreference = %s\nactual    = %s\n" % (
+            self._mismatch_string,
+            _format(self.expected),
+            _format(self.other)
+        )
+
+    def _describe_short_string(self):
+        left, right = self._get_argument_reprs()
+        return "%s %s %s" % (left, self._mismatch_string, right)
+
+    def _get_argument_reprs(self):
+        return repr(self.expected), repr(self.other)
 
 
 class Equals(_BinaryComparison):
