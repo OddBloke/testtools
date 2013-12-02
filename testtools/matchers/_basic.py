@@ -76,10 +76,10 @@ class _BinaryMismatch(Mismatch):
         self.other = other
 
     def describe(self):
-        if self._get_combined_string_length() > self.LONG_STRING_LENGTH:
-            return self._describe_long_string()
         if self._arguments_are_strings() and self._arguments_are_multiline():
             return self._describe_string_with_diff()
+        if self._get_combined_string_length() > self.LONG_STRING_LENGTH:
+            return self._describe_long_string()
         return self._describe_short_string()
 
     def _get_combined_string_length(self):

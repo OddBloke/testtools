@@ -100,6 +100,17 @@ class Test_BinaryMismatch(TestCase):
             '%s:\n  a\n- b\n+ d\n  c\n  ' % ('!~',)
         )
 
+    def test_long_multiline_strings(self):
+        shared_prefix = 'a\nb\nc\n' * 8
+        first = shared_prefix + 'd\n'
+        second = shared_prefix + 'e\n'
+        mismatch = _BinaryMismatch(first, "!~", second)
+        expected_lines = ['!~:']
+        expected_lines += ['  {}'.format(line)
+                           for line in shared_prefix.strip().split('\n')]
+        expected_lines += ['- d', '+ e', '  ']
+        self.assertEqual('\n'.join(expected_lines), mismatch.describe())
+
 
 class TestEqualsInterface(TestCase, TestMatchersInterface):
 
