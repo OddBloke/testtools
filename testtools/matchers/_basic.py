@@ -84,17 +84,6 @@ class _BinaryMismatch(Mismatch):
             return self._describe_long_string()
         return self._describe_short_string()
 
-    def _get_combined_string_length(self):
-        left, right = self._get_argument_reprs()
-        return len(left) + len(right)
-
-    def _describe_long_string(self):
-        return "%s:\nreference = %s\nactual    = %s\n" % (
-            self._mismatch_string,
-            _format(self.expected),
-            _format(self.other)
-        )
-
     def _arguments_are_multiline(self):
         def _test(obj):
             return _format(obj).count('\n') >= self.MULTI_LINE_MINIMUM
@@ -105,6 +94,17 @@ class _BinaryMismatch(Mismatch):
         right = _format(self.other, return_strings=True).split('\n')
         diff_lines = difflib.ndiff(left, right)
         return '%s:\n%s\n' % (self._mismatch_string, '\n'.join(diff_lines))
+
+    def _get_combined_string_length(self):
+        left, right = self._get_argument_reprs()
+        return len(left) + len(right)
+
+    def _describe_long_string(self):
+        return "%s:\nreference = %s\nactual    = %s\n" % (
+            self._mismatch_string,
+            _format(self.expected),
+            _format(self.other)
+        )
 
     def _describe_short_string(self):
         left, right = self._get_argument_reprs()
