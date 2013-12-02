@@ -630,10 +630,12 @@ class TestAssertions(TestCase):
              'Brown': 'The colour of healthy human faeces'}
         expected_error = '\n'.join([
             '!=:',
-            'reference = %s' % pformat(a),
-            'actual    = %s' % pformat(b),
-            ': ' + message,
-            ])
+            '- %s' % pformat(a)]
+            +
+            ['+ %s' % (line,) for line in pformat(b).split('\n')]
+            +
+            [': ' + message,]
+        )
         self.assertFails(expected_error, self.assertEqual, a, b, message)
         self.assertFails(expected_error, self.assertEquals, a, b, message)
         self.assertFails(expected_error, self.failUnlessEqual, a, b, message)
@@ -648,14 +650,11 @@ class TestAssertions(TestCase):
 
     def test_assertEqual_non_ascii_str_with_newlines(self):
         message = _u("Be careful mixing unicode and bytes")
-        a = "a\n\xa7\n"
+        a = "a b c d \xa7"
         b = "Just a longish string so the more verbose output form is used."
         expected_error = '\n'.join([
             '!=:',
-            "reference = '''\\",
-            'a',
-            repr('\xa7')[1:-1],
-            "'''",
+            'reference = %r' % (a,),
             'actual    = %r' % (b,),
             ': ' + message,
             ])
