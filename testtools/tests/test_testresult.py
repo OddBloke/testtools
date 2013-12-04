@@ -1116,8 +1116,6 @@ class TestTestResult(TestCase):
                 'Traceback (most recent call last):\n'
                 '  File "...testtools...runtest.py", line ..., in _run_user\n'
                 '    return fn(*args, **kwargs)\n'
-                '  File "...testtools...testcase.py", line ..., in _run_test_method\n'
-                '    return self._get_test_method()()\n'
                 '  File "...testtools...tests...test_testresult.py", line ..., in error\n'
                 '    1/0\n'
                 'ZeroDivisionError: ...\n',
