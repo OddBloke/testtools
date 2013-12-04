@@ -186,12 +186,6 @@ class TracebackContent(StackLinesContent):
         if err is None:
             raise ValueError("err may not be None")
 
-        exctype, value, tb = err
-        # Skip test runner traceback levels
-        if StackLinesContent.HIDE_INTERNAL_STACK:
-            while tb and '__unittest' in tb.tb_frame.f_globals:
-                tb = tb.tb_next
-
         # testtools customization. When str is unicode (e.g. IronPython,
         # Python 3), traceback.format_exception_only returns unicode. For
         # Python 2, it returns bytes. We need to guarantee unicode.
@@ -199,6 +193,8 @@ class TracebackContent(StackLinesContent):
             format_exception_only = traceback.format_exception_only
         else:
             format_exception_only = _format_exception_only
+
+        exctype, value, tb = err
 
         prefix = _TB_HEADER
         if self.HIDE_INTERNAL_STACK and tb is not None:
