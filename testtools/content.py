@@ -162,7 +162,6 @@ class StackLinesContent(Content):
     def _stack_lines_to_unicode(self, stack_lines):
         """Converts a list of pre-processed stack lines into a unicode string.
         """
-
         # testtools customization. When str is unicode (e.g. IronPython,
         # Python 3), traceback.format_exception returns unicode. For Python 2,
         # it returns bytes. We need to guarantee unicode.
@@ -202,12 +201,33 @@ class TracebackContent(StackLinesContent):
             format_exception_only = _format_exception_only
 
         prefix = _TB_HEADER
+        if tb is not None:
+            tb = self._strip_out_internal_traceback_frames(tb)
         stack_lines = traceback.extract_tb(tb)
         postfix = ''.join(format_exception_only(exctype, value))
 
         return super(TracebackContent, self).__init__(stack_lines,
                                                       prefix,
                                                       postfix)
+
+    def _strip_out_internal_traceback_frames(self, tb):
+        def _get_next_non_internal_traceback_object(_tb):
+            _next_tb = _tb.tb_next
+            while _next_tb and '__unittest' in _next_tb.tb_frame.f_globals:
+                _next_tb = _next_tb.tb_next
+            return _next_tb
+
+        class OurTraceback(object):
+
+            def __init__(self, tb):
+                self._tb = tb
+                _next_tb = _get_next_non_internal_traceback_object(tb)
+                if _next_tb:
+                    self.tb_next = OurTraceback(_next_tb)
+
+            def __getattr__(self, key):
+                return getattr(self._tb, key)
+        return OurTraceback(tb)
 
 
 class StacktraceContent(StackLinesContent):

@@ -24,6 +24,21 @@ try:
 except Exception:
     an_exc_info = sys.exc_info()
 
+
+def exception_raiser():
+    from testtools.matchers import Mismatch
+    class NonTestStackTraceFrame(Mismatch):
+
+        @property
+        def _details(self):
+            raise Exception('This is non-test code.')
+
+        @_details.setter
+        def _details(self, value):
+            pass
+
+    NonTestStackTraceFrame().get_details()
+
 # Deprecated: This classes attributes are somewhat non deterministic which
 # leads to hard to predict tests (because Python upstream are changing things.
 class LoggingResult(TestResult):

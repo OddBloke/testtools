@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 import tempfile
 import unittest
 
@@ -34,7 +35,7 @@ from testtools.matchers import (
     Raises,
     raises,
     )
-from testtools.tests.helpers import an_exc_info
+from testtools.tests.helpers import an_exc_info, exception_raiser
 
 
 raises_value_error = Raises(MatchesException(ValueError))
@@ -253,6 +254,14 @@ class TestTracebackContent(TestCase):
         result = unittest.TestResult()
         expected = result._exc_info_to_string(an_exc_info, self)
         self.assertEqual(expected, ''.join(list(content.iter_text())))
+
+    def test_internal_stack_hidden(self):
+        try:
+            exception_raiser()
+            self.fail("Shouldn't have made it this far.")
+        except Exception as exc:
+            content = TracebackContent(sys.exc_info(), self)
+        self.assertNotIn('_impl', content.as_text())
 
 
 class TestStacktraceContent(TestCase):
